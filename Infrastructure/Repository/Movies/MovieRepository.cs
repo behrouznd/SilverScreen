@@ -18,6 +18,8 @@ namespace Repository.Movies
             Create(movie);
         }
 
+
+
         public Movie GetMovie(Guid categoryId, Guid id, bool trackChanges) =>
             FindByCondition(m => m.CategoryId.Equals(categoryId) && m.Id.Equals(id), trackChanges)
                 .SingleOrDefault();
@@ -26,6 +28,11 @@ namespace Repository.Movies
         public IEnumerable<Movie> GetMovies(Guid categoryId, bool trackChanges) =>
             FindByCondition( m => m.CategoryId.Equals(categoryId), trackChanges)
                 .ToList();
-       
+
+        public IEnumerable<Movie> GetMoviesByIds(IEnumerable<Guid> ids, bool trackChanges) =>
+            FindByCondition(m=> ids.Contains(m.Id), trackChanges).ToList();
+
+        public void DeleteMovie(Movie movie) => Delete(movie);
+      
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Presentation.ModelBinders;
 using Service.Contracts.Base;
 using Shared.DataTransferObjects.Movies;
 
@@ -35,9 +36,31 @@ namespace Presentation.Controllers
             if (movie == null)
                 return BadRequest("MovieForCreationDto object is null");
 
-            var createdMovie = _service.movieService.CreateMovieForCategory(id, movie , trackChanges: false);
+            var createdMovie = _service.movieService.CreateMovieForCategory(id, movie, trackChanges: false);
             return CreatedAtRoute("GetMovieForCategory", new { categoryId = id, id = createdMovie.Id }, createdMovie);
+        }
 
+        [HttpGet("collection/({ids})", Name = "MovieCollection")]
+        public IActionResult GetMovieCollection([ModelBinder(binderType: typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            var movies = _service.movieService.GetMoviesByIds(ids, trackChanges: false);
+            return Ok(movies);
+        }
+
+
+        [HttpPost("collection")]
+        public IActionResult CreateMovieCollection(Guid id, [FromBody]IEnumerable<MovieForCreationDto> moviesCollection)
+        {
+            var result = _service.movieService.CreateMovieCollection(id, moviesCollection);
+
+            return CreatedAtRoute("MovieCollection", new { result.ids }, result.movies);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteMovieForCategory(Guid categoryId, Guid id)
+        {
+            _service.movieService.DeleteMovieForCategory(categoryId, id, trackChanges: false);
+            return NoContent();
         }
     }
 }

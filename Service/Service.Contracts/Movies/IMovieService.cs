@@ -9,5 +9,11 @@ namespace Service.Contracts.Movies
         MovieDto GetMovieById(Guid categoryId, Guid movieId, bool trackChanges);
 
         MovieDto CreateMovieForCategory(Guid categoryId, MovieForCreationDto movie, bool trackChanges);
+
+        IEnumerable<MovieDto> GetMoviesByIds(IEnumerable<Guid> ids,bool trackChanges);
+
+        (IEnumerable<MovieDto> movies , string ids) CreateMovieCollection(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection);
+
+        void DeleteMovieForCategory(Guid categoryId, Guid id , bool trackChanges);
     }
 }

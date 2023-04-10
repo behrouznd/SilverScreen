@@ -23,6 +23,23 @@ namespace Services.Movies
             this._mapper = autoMapper;
         }
 
+        public (IEnumerable<MovieDto> movies, string ids) CreateMovieCollection(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection)
+        {
+            if (movieCollection is null)
+                throw new MovieCollectionBadRequest();
+            var moviesEntity = _mapper.Map<IEnumerable<Movie>>(movieCollection);
+            foreach (var movie in moviesEntity)
+            {
+                _repository.Movie.CreateMovieForCategory(categoryId, movie);
+            }
+            _repository.Save();
+
+            var movieCollectionToReturn = _mapper.Map<IEnumerable<MovieDto>>(moviesEntity);
+            var ids = string.Join("," , movieCollectionToReturn.Select( x => x.Id));
+
+            return (movies : movieCollectionToReturn, ids : ids);
+        }
+
         public MovieDto CreateMovieForCategory(Guid categoryId, MovieForCreationDto movie, bool trackChanges)
         {
             var category = _repository.Category.GetCategory(categoryId, trackChanges);
@@ -35,6 +52,8 @@ namespace Services.Movies
 
             return _mapper.Map<MovieDto>(movieEntity);
         }
+
+
 
         public MovieDto GetMovieById(Guid categoryId, Guid movieId, bool trackChanges)
         {
@@ -58,6 +77,31 @@ namespace Services.Movies
             var movies = _repository.Movie.GetMovies(categoryId, trackChanges);
 
             return _mapper.Map<IEnumerable<MovieDto>>(movies);
+        }
+
+        public IEnumerable<MovieDto> GetMoviesByIds(IEnumerable<Guid> ids, bool trackChanges)
+        {
+            if (ids == null)
+                throw new IdParametersBadRequestException();
+            var movies = _repository.Movie.GetMoviesByIds(ids, trackChanges);
+            if(movies.Count() != ids.Count())
+                throw new CollectionByIdsBadRequestException();
+            return _mapper.Map<IEnumerable<MovieDto>>(movies);
+        }
+
+
+        public void DeleteMovieForCategory(Guid categoryId, Guid id, bool trackChanges)
+        {
+            var category = _repository.Category.GetCategory(categoryId , trackChanges);
+            if (category is null)
+                throw new CategoryNotFoundException(categoryId);
+            var movie = _repository.Movie.GetMovie(categoryId, id, trackChanges);
+            if(movie == null)
+                throw new MovieNotFoundException(id);
+
+            _repository.Movie.DeleteMovie(movie);
+            _repository.Save();
+
         }
     }
 }

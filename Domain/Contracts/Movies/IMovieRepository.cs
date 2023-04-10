@@ -9,5 +9,9 @@ namespace Contracts.Movies
         Movie GetMovie(Guid categoryId , Guid id , bool trackChanges);
 
         void CreateMovieForCategory(Guid categoryId , Movie movie);
+
+        IEnumerable<Movie> GetMoviesByIds(IEnumerable<Guid> ids, bool trackChanges);
+
+        void DeleteMovie(Movie movie);
     }
 }
