@@ -14,6 +14,8 @@ namespace SilverScreen
             CreateMap<CategoryForCreationDto, Category>();
 
             CreateMap<Movie, MovieDto>();
+            CreateMap<MovieForCreationDto, Movie>();
+            CreateMap<MovieForUpdateDto, Movie>();
         }
     }
 }

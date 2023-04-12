@@ -62,5 +62,16 @@ namespace Presentation.Controllers
             _service.movieService.DeleteMovieForCategory(categoryId, id, trackChanges: false);
             return NoContent();
         }
+
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateMovieForCategory(Guid categoryId, Guid id, [FromBody] MovieForUpdateDto movie)
+        {
+            if (movie is null)
+                return BadRequest("MovieForUpdateDto object is null");
+
+            _service.movieService.UpdateMovieForCategory(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
+
+            return NoContent();
+        }
     }
 }

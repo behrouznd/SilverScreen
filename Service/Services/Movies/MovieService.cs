@@ -103,5 +103,19 @@ namespace Services.Movies
             _repository.Save();
 
         }
+
+        public void UpdateMovieForCategory(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges)
+        {
+            var category = _repository.Category.GetCategory(categoryId , catTrackChanges);
+            if (category is null)
+                throw new CategoryNotFoundException(categoryId);
+
+            var movieEntity = _repository.Movie.GetMovie(categoryId , id, movTrackChanges);
+            if (movieEntity is null)
+                throw new MovieNotFoundException(id);
+
+            _mapper.Map(movie, movieEntity);
+            _repository.Save();
+        }
     }
 }

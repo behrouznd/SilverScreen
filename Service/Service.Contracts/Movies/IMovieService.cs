@@ -15,5 +15,7 @@ namespace Service.Contracts.Movies
         (IEnumerable<MovieDto> movies , string ids) CreateMovieCollection(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection);
 
         void DeleteMovieForCategory(Guid categoryId, Guid id , bool trackChanges);
+
+        void UpdateMovieForCategory(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges);
     }
 }
