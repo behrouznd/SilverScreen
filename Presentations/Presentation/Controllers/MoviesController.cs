@@ -36,6 +36,9 @@ namespace Presentation.Controllers
             if (movie == null)
                 return BadRequest("MovieForCreationDto object is null");
 
+            if(!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+            
             var createdMovie = _service.movieService.CreateMovieForCategory(id, movie, trackChanges: false);
             return CreatedAtRoute("GetMovieForCategory", new { categoryId = id, id = createdMovie.Id }, createdMovie);
         }
@@ -51,6 +54,9 @@ namespace Presentation.Controllers
         [HttpPost("collection")]
         public IActionResult CreateMovieCollection(Guid id, [FromBody]IEnumerable<MovieForCreationDto> moviesCollection)
         {
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var result = _service.movieService.CreateMovieCollection(id, moviesCollection);
 
             return CreatedAtRoute("MovieCollection", new { result.ids }, result.movies);
@@ -68,6 +74,9 @@ namespace Presentation.Controllers
         {
             if (movie is null)
                 return BadRequest("MovieForUpdateDto object is null");
+
+            if(!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
 
             _service.movieService.UpdateMovieForCategory(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
 

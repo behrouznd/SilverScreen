@@ -1,4 +1,5 @@
 using Contracts.Logger;
+using Microsoft.AspNetCore.Mvc;
 using NLog;
 using SilverScreen.Extensions;
 
@@ -13,6 +14,11 @@ builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.Configure<ApiBehaviorOptions>(option =>
+{
+    option.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
