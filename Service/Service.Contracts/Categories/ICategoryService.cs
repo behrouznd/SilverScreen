@@ -4,12 +4,12 @@ namespace Service.Contracts.Categories
 {
     public interface ICategoryService
     {
-        IEnumerable<CategoryDto> GetAllCategories(bool trackChanges);
+        Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync(bool trackChanges);
 
-        CategoryDto GetCategoryById(Guid id, bool trackChanges);
+        Task<CategoryDto> GetCategoryByIdAsync(Guid id, bool trackChanges);
 
-        CategoryDto CreateCategory(CategoryForCreationDto category);
+        Task<CategoryDto> CreateCategoryAsync(CategoryForCreationDto category);
 
-        IEnumerable<CategoryDto> GetCategoriesByIds(IEnumerable<Guid> ids, bool trackChanges);
+        Task<IEnumerable<CategoryDto>> GetCategoriesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
     }
 }

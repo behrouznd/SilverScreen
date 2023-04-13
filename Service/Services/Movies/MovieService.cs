@@ -23,7 +23,7 @@ namespace Services.Movies
             this._mapper = autoMapper;
         }
 
-        public (IEnumerable<MovieDto> movies, string ids) CreateMovieCollection(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection)
+        public async Task<(IEnumerable<MovieDto> movies, string ids)> CreateMovieCollectionAsync(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection)
         {
             if (movieCollection is null)
                 throw new MovieCollectionBadRequest();
@@ -32,7 +32,7 @@ namespace Services.Movies
             {
                 _repository.Movie.CreateMovieForCategory(categoryId, movie);
             }
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var movieCollectionToReturn = _mapper.Map<IEnumerable<MovieDto>>(moviesEntity);
             var ids = string.Join("," , movieCollectionToReturn.Select( x => x.Id));
@@ -40,82 +40,82 @@ namespace Services.Movies
             return (movies : movieCollectionToReturn, ids : ids);
         }
 
-        public MovieDto CreateMovieForCategory(Guid categoryId, MovieForCreationDto movie, bool trackChanges)
+        public async Task<MovieDto> CreateMovieForCategoryAsync(Guid categoryId, MovieForCreationDto movie, bool trackChanges)
         {
-            var category = _repository.Category.GetCategory(categoryId, trackChanges);
+            var category = await _repository.Category.GetCategoryAsync(categoryId, trackChanges);
             if(category == null)
                 throw new CategoryNotFoundException(categoryId);
 
             var movieEntity = _mapper.Map<Movie>(movie);
             _repository.Movie.CreateMovieForCategory(categoryId, movieEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             return _mapper.Map<MovieDto>(movieEntity);
         }
 
 
 
-        public MovieDto GetMovieById(Guid categoryId, Guid movieId, bool trackChanges)
+        public async Task<MovieDto> GetMovieByIdAsync(Guid categoryId, Guid movieId, bool trackChanges)
         {
-            var category = _repository.Category.GetCategory(categoryId, trackChanges);
+            var category = await _repository.Category.GetCategoryAsync(categoryId, trackChanges);
             if (category == null)
                 throw new CategoryNotFoundException(categoryId);
 
-            var movie = _repository.Movie.GetMovie(categoryId, movieId, trackChanges);
+            var movie = await _repository.Movie.GetMovieAsync(categoryId, movieId, trackChanges);
             if(movie == null)
                 throw new MovieNotFoundException(movieId);
 
             return _mapper.Map<MovieDto>(movie);
         }
 
-        public IEnumerable<MovieDto> GetMovies(Guid categoryId, bool trackChanges)
+        public async Task<IEnumerable<MovieDto>> GetMoviesAsync(Guid categoryId, bool trackChanges)
         {
-            var category = _repository.Category.GetCategory(categoryId,trackChanges);
+            var category = await _repository.Category.GetCategoryAsync(categoryId,trackChanges);
             if(category == null)
                 throw new CategoryNotFoundException(categoryId);
 
-            var movies = _repository.Movie.GetMovies(categoryId, trackChanges);
+            var movies = await _repository.Movie.GetMoviesAsync(categoryId, trackChanges);
 
             return _mapper.Map<IEnumerable<MovieDto>>(movies);
         }
 
-        public IEnumerable<MovieDto> GetMoviesByIds(IEnumerable<Guid> ids, bool trackChanges)
+        public async Task<IEnumerable<MovieDto>> GetMoviesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)
         {
             if (ids == null)
                 throw new IdParametersBadRequestException();
-            var movies = _repository.Movie.GetMoviesByIds(ids, trackChanges);
+            var movies = await _repository.Movie.GetMoviesByIdsAsync(ids, trackChanges);
             if(movies.Count() != ids.Count())
                 throw new CollectionByIdsBadRequestException();
             return _mapper.Map<IEnumerable<MovieDto>>(movies);
         }
 
 
-        public void DeleteMovieForCategory(Guid categoryId, Guid id, bool trackChanges)
+        public async Task DeleteMovieForCategoryAsync(Guid categoryId, Guid id, bool trackChanges)
         {
-            var category = _repository.Category.GetCategory(categoryId , trackChanges);
+            var category = await _repository.Category.GetCategoryAsync(categoryId , trackChanges);
             if (category is null)
                 throw new CategoryNotFoundException(categoryId);
-            var movie = _repository.Movie.GetMovie(categoryId, id, trackChanges);
+            var movie = await _repository.Movie.GetMovieAsync(categoryId, id, trackChanges);
             if(movie == null)
                 throw new MovieNotFoundException(id);
 
             _repository.Movie.DeleteMovie(movie);
-            _repository.Save();
+            await _repository.SaveAsync();
 
         }
 
-        public void UpdateMovieForCategory(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges)
+        public async Task UpdateMovieForCategoryAsync(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges)
         {
-            var category = _repository.Category.GetCategory(categoryId , catTrackChanges);
+            var category = await _repository.Category.GetCategoryAsync(categoryId , catTrackChanges);
             if (category is null)
                 throw new CategoryNotFoundException(categoryId);
 
-            var movieEntity = _repository.Movie.GetMovie(categoryId , id, movTrackChanges);
+            var movieEntity = await _repository.Movie.GetMovieAsync(categoryId , id, movTrackChanges);
             if (movieEntity is null)
                 throw new MovieNotFoundException(id);
 
             _mapper.Map(movie, movieEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
     }
 }

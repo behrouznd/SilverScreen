@@ -15,7 +15,7 @@ namespace Contracts.Base
         IMovieGenreRepository MovieGenre { get; }
         IMovieLanguageRepository MovieLanguage { get; }
 
-        void Save();
+        Task SaveAsync();
 
     }
 }

@@ -4,18 +4,18 @@ namespace Service.Contracts.Movies
 {
     public interface IMovieService
     {
-        IEnumerable<MovieDto> GetMovies(Guid categoryId, bool trackChanges);
+        Task<IEnumerable<MovieDto>> GetMoviesAsync(Guid categoryId, bool trackChanges);
 
-        MovieDto GetMovieById(Guid categoryId, Guid movieId, bool trackChanges);
+        Task<MovieDto> GetMovieByIdAsync(Guid categoryId, Guid movieId, bool trackChanges);
 
-        MovieDto CreateMovieForCategory(Guid categoryId, MovieForCreationDto movie, bool trackChanges);
+        Task<MovieDto> CreateMovieForCategoryAsync(Guid categoryId, MovieForCreationDto movie, bool trackChanges);
 
-        IEnumerable<MovieDto> GetMoviesByIds(IEnumerable<Guid> ids,bool trackChanges);
+        Task<IEnumerable<MovieDto>> GetMoviesByIdsAsync(IEnumerable<Guid> ids,bool trackChanges);
 
-        (IEnumerable<MovieDto> movies , string ids) CreateMovieCollection(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection);
+        Task<(IEnumerable<MovieDto> movies , string ids)> CreateMovieCollectionAsync(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection);
 
-        void DeleteMovieForCategory(Guid categoryId, Guid id , bool trackChanges);
+        Task DeleteMovieForCategoryAsync(Guid categoryId, Guid id , bool trackChanges);
 
-        void UpdateMovieForCategory(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges);
+        Task UpdateMovieForCategoryAsync(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges);
     }
 }

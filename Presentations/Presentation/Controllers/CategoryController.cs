@@ -16,22 +16,22 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
-            var categories = _service.categoryService.GetAllCategories(trackChanges: false);
+            var categories = await _service.categoryService.GetAllCategoriesAsync(trackChanges: false);
             return Ok(categories);
         }
 
         [HttpGet("{id:guid}" , Name = "CategoryById")]
-        public IActionResult GetCategory(Guid id)
+        public async Task<IActionResult> GetCategory(Guid id)
         {
-            var category = _service.categoryService.GetCategoryById(id, trackChanges: false);
+            var category = await _service.categoryService.GetCategoryByIdAsync(id, trackChanges: false);
 
             return Ok(category);
         }
 
         [HttpPost]
-        public IActionResult CreateCategory([FromBody]CategoryForCreationDto category)
+        public async Task<IActionResult> CreateCategory([FromBody]CategoryForCreationDto category)
         {
             if (category == null)
                 return BadRequest("CategoryForCreationDto object is null");
@@ -39,14 +39,14 @@ namespace Presentation.Controllers
             if(!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var createdCategory = _service.categoryService.CreateCategory(category);
+            var createdCategory = await _service.categoryService.CreateCategoryAsync(category);
             return CreatedAtRoute("CategoryById", new { id = createdCategory.Id }, createdCategory);
         }
 
         [HttpGet("collection/({ids})" , Name = "CategoryCollection")]
-        public IActionResult GetCategoryCollection(IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetCategoryCollectionAsync(IEnumerable<Guid> ids)
         {
-            var categories = _service.categoryService.GetCategoriesByIds(ids, trackChanges: false);
+            var categories = await _service.categoryService.GetCategoriesByIdsAsync(ids, trackChanges: false);
             return Ok(categories);
         }
     }

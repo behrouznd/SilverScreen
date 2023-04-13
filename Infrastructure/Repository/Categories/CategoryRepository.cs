@@ -1,5 +1,6 @@
 ﻿using Contracts.Categories;
 using Entities.Categories;
+using Microsoft.EntityFrameworkCore;
 using Repository.Base;
 using Repository.Context;
 
@@ -15,14 +16,14 @@ namespace Repository.Categories
             Create(category);
          
 
-        public IEnumerable<Category> GetAllCategories(bool trackChanges) =>
-            FindAll(trackChanges).ToList();
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync(bool trackChanges) =>
+            await FindAll(trackChanges).ToListAsync();
 
-        public Category GetCategory(Guid id, bool trackChanges) =>
-            FindByCondition( c => c.Id.Equals(id), trackChanges).SingleOrDefault();
+        public async Task<Category> GetCategoryAsync(Guid id, bool trackChanges) =>
+            await FindByCondition( c => c.Id.Equals(id), trackChanges).SingleOrDefaultAsync();
 
-        public IEnumerable<Category> GetCategoryByIds(IEnumerable<Guid> ids, bool trackChanges) =>
-            FindByCondition(m=> ids.Contains(m.Id), trackChanges).ToList();
+        public async Task<IEnumerable<Category>> GetCategoryByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
+            await FindByCondition(m=> ids.Contains(m.Id), trackChanges).ToListAsync();
          
     }
 }

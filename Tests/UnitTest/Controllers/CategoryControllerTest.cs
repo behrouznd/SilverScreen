@@ -28,8 +28,8 @@ namespace UnitTest.Controllers
             _mockServiceManager = new Mock<IServiceManager>();
             _categoryController = new CategoryController(_mockServiceManager.Object);
 
-            _mockServiceManager.Setup(s => s.categoryService.GetAllCategories(false))
-                .Returns(categoryDtos);
+            _mockServiceManager.Setup(s => s.categoryService.GetAllCategoriesAsync(false))
+                .ReturnsAsync(categoryDtos);
 
         }
 
@@ -38,13 +38,13 @@ namespace UnitTest.Controllers
         {
             var okResult = _categoryController.GetCategories();
             
-            Assert.IsType<OkObjectResult>(okResult as OkObjectResult);
+            Assert.IsType<OkObjectResult>(okResult.Result as OkObjectResult);
         }
 
         [Fact]
         public void GetCategories_ActionExecutes_ReturnAllItems()
         {
-            var okResult = _categoryController.GetCategories() as OkObjectResult;
+            var okResult = _categoryController.GetCategories().Result as OkObjectResult;
 
             var items = Assert.IsType<List<CategoryDto>>(okResult.Value);
             Assert.Equal(2, items.Count);
@@ -54,17 +54,17 @@ namespace UnitTest.Controllers
         public void GetCategory_ActionExecutes_ReturnOkResult()
         {
             var okResult = _categoryController.GetCategory(new Guid());
-            Assert.IsType<OkObjectResult>(okResult as OkObjectResult);
+            Assert.IsType<OkObjectResult>(okResult.Result as OkObjectResult);
         }
 
         [Fact]
         public void GetCategory_ExistingGuidPassed_ReturnRightItem()
         {
             var categoryDto = new CategoryDto() { Id = new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200"), Name = "category1" };
-            _mockServiceManager.Setup( s=> s.categoryService.GetCategoryById(new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200"),false))
-                .Returns(categoryDto);
+            _mockServiceManager.Setup( s=> s.categoryService.GetCategoryByIdAsync(new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200"),false))
+                .ReturnsAsync(categoryDto);
 
-            var result = _categoryController.GetCategory(categoryDto.Id) as OkObjectResult;
+            var result = _categoryController.GetCategory(categoryDto.Id).Result as OkObjectResult;
 
             Assert.IsType<CategoryDto>(result?.Value);
             Assert.Equal(categoryDto.Id , (result.Value as CategoryDto)?.Id);
@@ -78,10 +78,10 @@ namespace UnitTest.Controllers
                 Name = "category1"
             };
 
-            _mockServiceManager.Setup(s => s.categoryService.CreateCategory(categoryForCreationDto))
-            .Returns(new CategoryDto() { Name = categoryForCreationDto.Name});
+            _mockServiceManager.Setup(s => s.categoryService.CreateCategoryAsync(categoryForCreationDto))
+            .ReturnsAsync(new CategoryDto() { Name = categoryForCreationDto.Name});
 
-            var createdResponse = _categoryController.CreateCategory(categoryForCreationDto);
+            var createdResponse = _categoryController.CreateCategory(categoryForCreationDto).Result;
 
             Assert.IsType<CreatedAtRouteResult>(createdResponse);
         }
@@ -89,16 +89,16 @@ namespace UnitTest.Controllers
         [Fact]
         public void CreateCategory_ValidObjectPassed_ReturnedResponseHasCreatedItem()
         {
-            _mockServiceManager.Setup(s => s.categoryService.CreateCategory(It.IsAny<CategoryForCreationDto>()))
+            _mockServiceManager.Setup(s => s.categoryService.CreateCategoryAsync(It.IsAny<CategoryForCreationDto>()).Result)
                 .Returns<CategoryForCreationDto>(x => new CategoryDto() { Id = Guid.NewGuid(), Name = x.Name });
 
             CategoryForCreationDto categoryForCreationDto = new CategoryForCreationDto()
             {
                 Name = "category1"
             };
-            var createdResponse = _categoryController.CreateCategory(categoryForCreationDto) as CreatedAtRouteResult;
+            var createdResponse = _categoryController.CreateCategory(categoryForCreationDto).Result as CreatedAtRouteResult;
 
-            _mockServiceManager.Verify( x=> x.categoryService.CreateCategory(It.IsNotNull<CategoryForCreationDto>()) , Times.Once());
+            _mockServiceManager.Verify( x=> x.categoryService.CreateCategoryAsync(It.IsNotNull<CategoryForCreationDto>()) , Times.Once());
 
             var item = createdResponse.Value as CategoryDto;
 
@@ -109,7 +109,7 @@ namespace UnitTest.Controllers
         [Fact]
         public void CreateCategory_UnvalidObjectPassed_ThrowBadRequestException()
         {
-            Assert.IsType<BadRequestObjectResult>(_categoryController.CreateCategory(null));
+            Assert.IsType<BadRequestObjectResult>(_categoryController.CreateCategory(null).Result);
         }
 
         

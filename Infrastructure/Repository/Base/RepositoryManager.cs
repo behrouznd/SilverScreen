@@ -53,9 +53,9 @@ namespace Repository.Base
 
         public IMovieLanguageRepository MovieLanguage => _movieLanguageRepository.Value;
 
-        public void Save()
+        public async Task SaveAsync()
         {
-            _repositoryContext.SaveChanges();
-            }
+            await _repositoryContext.SaveChangesAsync();
+        }
     }
 }

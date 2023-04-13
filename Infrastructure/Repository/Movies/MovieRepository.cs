@@ -2,7 +2,6 @@
 using Entities.Movies;
 using Repository.Base;
 using Repository.Context;
-using System.Linq;
 
 namespace Repository.Movies
 {
@@ -20,16 +19,16 @@ namespace Repository.Movies
 
 
 
-        public Movie GetMovie(Guid categoryId, Guid id, bool trackChanges) =>
+        public async Task<Movie> GetMovieAsync(Guid categoryId, Guid id, bool trackChanges) =>
             FindByCondition(m => m.CategoryId.Equals(categoryId) && m.Id.Equals(id), trackChanges)
                 .SingleOrDefault();
          
 
-        public IEnumerable<Movie> GetMovies(Guid categoryId, bool trackChanges) =>
+        public async Task<IEnumerable<Movie>> GetMoviesAsync(Guid categoryId, bool trackChanges) =>
             FindByCondition( m => m.CategoryId.Equals(categoryId), trackChanges)
                 .ToList();
 
-        public IEnumerable<Movie> GetMoviesByIds(IEnumerable<Guid> ids, bool trackChanges) =>
+        public async Task<IEnumerable<Movie>> GetMoviesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
             FindByCondition(m=> ids.Contains(m.Id), trackChanges).ToList();
 
         public void DeleteMovie(Movie movie) => Delete(movie);

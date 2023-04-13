@@ -23,35 +23,35 @@ namespace Services.Categories
             this._mapper = mapper;
         }
 
-        public CategoryDto CreateCategory(CategoryForCreationDto category)
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryForCreationDto category)
         {
             var categoryEntity = _mapper.Map<Category>(category);
             _repository.Category.CreateCategory(categoryEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return _mapper.Map<CategoryDto>(categoryEntity);
         }
 
-        public IEnumerable<CategoryDto> GetAllCategories(bool trackChanges)
+        public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync(bool trackChanges)
         {
  
-            var categories = _repository.Category.GetAllCategories(trackChanges);
+            var categories = await _repository.Category.GetAllCategoriesAsync(trackChanges);
             return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
 
-        public IEnumerable<CategoryDto> GetCategoriesByIds(IEnumerable<Guid> ids, bool trackChanges)
+        public async Task<IEnumerable<CategoryDto>> GetCategoriesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)
         {
             if (ids == null)
                 throw new IdParametersBadRequestException();
 
-            var categoriesEntity = _repository.Category.GetCategoryByIds(ids, trackChanges);
+            var categoriesEntity = await _repository.Category.GetCategoryByIdsAsync(ids, trackChanges);
             if (categoriesEntity.Count() != ids.Count())
                 throw new CollectionByIdsBadRequestException();
             return _mapper.Map<IEnumerable< CategoryDto>>(categoriesEntity);
         }
 
-        public CategoryDto GetCategoryById(Guid id, bool trackChanges)
+        public async Task<CategoryDto> GetCategoryByIdAsync(Guid id, bool trackChanges)
         {
-            var category = _repository.Category.GetCategory(id, trackChanges);
+            var category = await _repository.Category.GetCategoryAsync(id, trackChanges);
             if (category == null)
                 throw new CategoryNotFoundException(id);
             return _mapper.Map<CategoryDto>(category);
