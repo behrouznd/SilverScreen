@@ -32,6 +32,7 @@ namespace Repository.Movies
             var movies = await FindByCondition(m => m.CategoryId.Equals(categoryId) , trackChanges)
                 .FilterMovies(movieParameters.PublicationYear)
                 .Search(movieParameters.SearchTitle)
+                .Sort(movieParameters.OrderBy)
                 .Skip((movieParameters.PageNumber - 1) * movieParameters.PageSize)
                 .Take(movieParameters.PageSize)
                 .ToListAsync();
