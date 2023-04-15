@@ -3,6 +3,7 @@ using Entities.Movies;
 using Microsoft.EntityFrameworkCore;
 using Repository.Base;
 using Repository.Context;
+using Repository.Movies.Extentions;
 using Shared.RequestFeatures;
 
 namespace Repository.Movies
@@ -28,10 +29,9 @@ namespace Repository.Movies
 
         public async Task<PagedList<Movie>> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges)
         {
-            var movies = await FindByCondition(m => m.CategoryId.Equals(categoryId) &&
-                (movieParameters.PublicationYear == 0 || m.PulicationYear == movieParameters.PublicationYear) &&
-                (string.IsNullOrEmpty(movieParameters.Title) || m.Title.Contains(movieParameters.Title))
-                , trackChanges)
+            var movies = await FindByCondition(m => m.CategoryId.Equals(categoryId) , trackChanges)
+                .FilterMovies(movieParameters.PublicationYear)
+                .Search(movieParameters.SearchTitle)
                 .Skip((movieParameters.PageNumber - 1) * movieParameters.PageSize)
                 .Take(movieParameters.PageSize)
                 .ToListAsync();
