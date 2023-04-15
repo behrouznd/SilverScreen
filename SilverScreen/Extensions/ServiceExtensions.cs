@@ -17,7 +17,8 @@ namespace SilverScreen.Extensions
                option.AddPolicy("CorsPolicy", policy =>
                policy.AllowAnyOrigin()
                .AllowAnyMethod()
-               .AllowAnyHeader());
+               .AllowAnyHeader()
+               .WithExposedHeaders("X-Pagination"));
             });
 
         public static void ConfigureIISIntegration(this IServiceCollection services) =>

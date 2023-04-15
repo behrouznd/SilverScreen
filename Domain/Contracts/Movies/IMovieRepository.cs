@@ -1,10 +1,11 @@
 ﻿using Entities.Movies;
+using Shared.RequestFeatures;
 
 namespace Contracts.Movies
 {
     public interface IMovieRepository
     {
-        Task<IEnumerable<Movie>> GetMoviesAsync(Guid categoryId, bool trackChanges);
+        Task<PagedList<Movie>> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges);
 
         Task<Movie> GetMovieAsync(Guid categoryId , Guid id , bool trackChanges);
 

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Contracts.Base;
 using Contracts.Logger;
+using Entities.Categories;
 using Entities.Exceptions;
 using Entities.Movies;
 using Service.Contracts.Movies;
 using Shared.DataTransferObjects.Movies;
+using Shared.RequestFeatures;
 
 namespace Services.Movies
 {
@@ -42,9 +44,7 @@ namespace Services.Movies
 
         public async Task<MovieDto> CreateMovieForCategoryAsync(Guid categoryId, MovieForCreationDto movie, bool trackChanges)
         {
-            var category = await _repository.Category.GetCategoryAsync(categoryId, trackChanges);
-            if(category == null)
-                throw new CategoryNotFoundException(categoryId);
+            await GetCategoryAndCheckIfItExists(categoryId, trackChanges);
 
             var movieEntity = _mapper.Map<Movie>(movie);
             _repository.Movie.CreateMovieForCategory(categoryId, movieEntity);
@@ -57,26 +57,22 @@ namespace Services.Movies
 
         public async Task<MovieDto> GetMovieByIdAsync(Guid categoryId, Guid movieId, bool trackChanges)
         {
-            var category = await _repository.Category.GetCategoryAsync(categoryId, trackChanges);
-            if (category == null)
-                throw new CategoryNotFoundException(categoryId);
+            await GetCategoryAndCheckIfItExists(categoryId, trackChanges);
 
-            var movie = await _repository.Movie.GetMovieAsync(categoryId, movieId, trackChanges);
-            if(movie == null)
-                throw new MovieNotFoundException(movieId);
-
+            var movie = await GetMovieAndCheckIfItExists(categoryId, movieId, trackChanges);
+ 
             return _mapper.Map<MovieDto>(movie);
         }
 
-        public async Task<IEnumerable<MovieDto>> GetMoviesAsync(Guid categoryId, bool trackChanges)
+        public async Task<(IEnumerable<MovieDto> movies, MetaData metaData)> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges)
         {
-            var category = await _repository.Category.GetCategoryAsync(categoryId,trackChanges);
-            if(category == null)
-                throw new CategoryNotFoundException(categoryId);
+            await GetCategoryAndCheckIfItExists(categoryId,trackChanges);
 
-            var movies = await _repository.Movie.GetMoviesAsync(categoryId, trackChanges);
+            var moviesWithMetaData = await _repository.Movie.GetMoviesAsync(categoryId, movieParameters, trackChanges);
 
-            return _mapper.Map<IEnumerable<MovieDto>>(movies);
+            var moviesDto = _mapper.Map<IEnumerable<MovieDto>>(moviesWithMetaData);
+
+            return (movies: moviesDto , metaData: moviesWithMetaData.MetaData);
         }
 
         public async Task<IEnumerable<MovieDto>> GetMoviesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)
@@ -92,12 +88,9 @@ namespace Services.Movies
 
         public async Task DeleteMovieForCategoryAsync(Guid categoryId, Guid id, bool trackChanges)
         {
-            var category = await _repository.Category.GetCategoryAsync(categoryId , trackChanges);
-            if (category is null)
-                throw new CategoryNotFoundException(categoryId);
-            var movie = await _repository.Movie.GetMovieAsync(categoryId, id, trackChanges);
-            if(movie == null)
-                throw new MovieNotFoundException(id);
+            await GetCategoryAndCheckIfItExists(categoryId , trackChanges);
+       
+            var movie = await GetMovieAndCheckIfItExists(categoryId, id, trackChanges);
 
             _repository.Movie.DeleteMovie(movie);
             await _repository.SaveAsync();
@@ -106,16 +99,29 @@ namespace Services.Movies
 
         public async Task UpdateMovieForCategoryAsync(Guid categoryId, Guid id, MovieForUpdateDto movie, bool catTrackChanges, bool movTrackChanges)
         {
-            var category = await _repository.Category.GetCategoryAsync(categoryId , catTrackChanges);
-            if (category is null)
-                throw new CategoryNotFoundException(categoryId);
-
-            var movieEntity = await _repository.Movie.GetMovieAsync(categoryId , id, movTrackChanges);
-            if (movieEntity is null)
-                throw new MovieNotFoundException(id);
+            await GetCategoryAndCheckIfItExists(categoryId , catTrackChanges);
+            
+            var movieEntity = await GetMovieAndCheckIfItExists(categoryId , id, movTrackChanges);
 
             _mapper.Map(movie, movieEntity);
             await _repository.SaveAsync();
+        }
+
+
+        private async Task<Category> GetCategoryAndCheckIfItExists(Guid id, bool trackChanges)
+        {
+            var category = await _repository.Category.GetCategoryAsync(id, trackChanges);
+            if (category is null)
+                throw new CategoryNotFoundException(id);
+            return category;
+        }
+
+        private async Task<Movie> GetMovieAndCheckIfItExists(Guid categoryId, Guid id, bool trackChanges)
+        {
+            var movieEntity = await _repository.Movie.GetMovieAsync(categoryId, id, trackChanges);
+            if (movieEntity is null)
+                throw new MovieNotFoundException(id);
+            return movieEntity;
         }
     }
 }

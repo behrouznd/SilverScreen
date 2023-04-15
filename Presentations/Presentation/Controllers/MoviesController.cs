@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Presentation.ActionFilters;
 using Presentation.ModelBinders;
 using Service.Contracts.Base;
 using Shared.DataTransferObjects.Movies;
+using Shared.RequestFeatures;
+using System.Text.Json;
 
 namespace Presentation.Controllers
 {
@@ -17,10 +20,13 @@ namespace Presentation.Controllers
          
 
         [HttpGet]
-        public async Task<IActionResult> GetMovies(Guid categoryId)
+        public async Task<IActionResult> GetMovies(Guid categoryId, [FromQuery] MovieParameters movieParameters)
         {
-            var movies = await _service.movieService.GetMoviesAsync(categoryId, trackChanges: false);
-            return Ok(movies);
+            var moviesPagesResult = await _service.movieService.GetMoviesAsync(categoryId, movieParameters , trackChanges: false);
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(moviesPagesResult.metaData));
+
+            return Ok(moviesPagesResult.movies);
         }
 
         [HttpGet("{id:guid}" , Name = "GetMovieForCategory")]
@@ -31,14 +37,9 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateMovieForCategory(Guid id, [FromBody]MovieForCreationDto movie)
-        {
-            if (movie == null)
-                return BadRequest("MovieForCreationDto object is null");
-
-            if(!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-            
+        {            
             var createdMovie = await _service.movieService.CreateMovieForCategoryAsync(id, movie, trackChanges: false);
             return CreatedAtRoute("GetMovieForCategory", new { categoryId = id, id = createdMovie.Id }, createdMovie);
         }
@@ -52,11 +53,9 @@ namespace Presentation.Controllers
 
 
         [HttpPost("collection")]
+        [ServiceFilter(typeof (ValidationFilterAttribute))]
         public async Task<IActionResult> CreateMovieCollection(Guid id, [FromBody]IEnumerable<MovieForCreationDto> moviesCollection)
         {
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var result = await _service.movieService.CreateMovieCollectionAsync(id, moviesCollection);
 
             return CreatedAtRoute("MovieCollection", new { result.ids }, result.movies);
@@ -70,14 +69,9 @@ namespace Presentation.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateMovieForCategory(Guid categoryId, Guid id, [FromBody] MovieForUpdateDto movie)
-        {
-            if (movie is null)
-                return BadRequest("MovieForUpdateDto object is null");
-
-            if(!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
+        {           
              await _service.movieService.UpdateMovieForCategoryAsync(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
 
             return NoContent();

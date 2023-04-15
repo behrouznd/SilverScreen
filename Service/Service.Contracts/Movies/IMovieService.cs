@@ -1,10 +1,11 @@
 ﻿using Shared.DataTransferObjects.Movies;
+using Shared.RequestFeatures;
 
 namespace Service.Contracts.Movies
 {
     public interface IMovieService
     {
-        Task<IEnumerable<MovieDto>> GetMoviesAsync(Guid categoryId, bool trackChanges);
+        Task<(IEnumerable<MovieDto> movies, MetaData metaData)> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges);
 
         Task<MovieDto> GetMovieByIdAsync(Guid categoryId, Guid movieId, bool trackChanges);
 

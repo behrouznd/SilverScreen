@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Presentation.ActionFilters;
 using Service.Contracts.Base;
 using Shared.DataTransferObjects.Categories;
 
@@ -31,14 +32,9 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCategory([FromBody]CategoryForCreationDto category)
-        {
-            if (category == null)
-                return BadRequest("CategoryForCreationDto object is null");
-
-            if(!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
+        { 
             var createdCategory = await _service.categoryService.CreateCategoryAsync(category);
             return CreatedAtRoute("CategoryById", new { id = createdCategory.Id }, createdCategory);
         }
