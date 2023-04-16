@@ -10,6 +10,7 @@ using Services.Categories;
 using Services.Genres;
 using Services.Languages;
 using Services.Movies;
+using Shared.DataTransferObjects.Movies;
 
 namespace Services.Base
 {
@@ -21,12 +22,13 @@ namespace Services.Base
         private readonly Lazy<IMovieService> _movieService;
         public ServiceManager(IRepositoryManager repositoryManager,
             ILoggerManager loggerManager,
-            IMapper mapper)
+            IMapper mapper,
+            IDataShaper<MovieDto> dataShaper)
         {
             _categoryService = new Lazy<ICategoryService>(() => new CategoryService(repositoryManager , loggerManager, mapper));
             _genreService = new Lazy<IGenreService>(() => new GenreService(repositoryManager, loggerManager));
             _languageService = new Lazy<ILanguageService>(()=> new LanguageService(repositoryManager, loggerManager ));
-            _movieService = new Lazy<IMovieService>(() => new MovieService(repositoryManager, loggerManager, mapper));
+            _movieService = new Lazy<IMovieService>(() => new MovieService(repositoryManager, loggerManager, mapper, dataShaper));
         }
 
         public ICategoryService categoryService => _categoryService.Value;

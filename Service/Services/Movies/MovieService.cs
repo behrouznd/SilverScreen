@@ -7,6 +7,7 @@ using Entities.Movies;
 using Service.Contracts.Movies;
 using Shared.DataTransferObjects.Movies;
 using Shared.RequestFeatures;
+using System.Dynamic;
 
 namespace Services.Movies
 {
@@ -15,14 +16,17 @@ namespace Services.Movies
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
+        private readonly IDataShaper<MovieDto> _dataShaper;
 
         public MovieService(IRepositoryManager repositoryManager,
             ILoggerManager loggerManager,
-            IMapper autoMapper)
+            IMapper autoMapper,
+            IDataShaper<MovieDto> dataShaper)
         {
             this._repository = repositoryManager;
             this._logger = loggerManager;
             this._mapper = autoMapper;
+            this._dataShaper = dataShaper;
         }
 
         public async Task<(IEnumerable<MovieDto> movies, string ids)> CreateMovieCollectionAsync(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection)
@@ -64,7 +68,7 @@ namespace Services.Movies
             return _mapper.Map<MovieDto>(movie);
         }
 
-        public async Task<(IEnumerable<MovieDto> movies, MetaData metaData)> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges)
+        public async Task<(IEnumerable<ExpandoObject> movies, MetaData metaData)> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges)
         {
             await GetCategoryAndCheckIfItExists(categoryId,trackChanges);
 
@@ -72,7 +76,9 @@ namespace Services.Movies
 
             var moviesDto = _mapper.Map<IEnumerable<MovieDto>>(moviesWithMetaData);
 
-            return (movies: moviesDto , metaData: moviesWithMetaData.MetaData);
+            var shapedData = _dataShaper.ShapeData(moviesDto, movieParameters.Fields);
+
+            return (movies: shapedData, metaData: moviesWithMetaData.MetaData);
         }
 
         public async Task<IEnumerable<MovieDto>> GetMoviesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)
