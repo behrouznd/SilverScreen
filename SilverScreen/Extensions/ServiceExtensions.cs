@@ -1,6 +1,8 @@
 ﻿using Contracts.Base;
 using Contracts.Logger;
 using LoggerService;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Repository.Base;
 using Repository.Context;
@@ -37,6 +39,24 @@ namespace SilverScreen.Extensions
             services.AddDbContext<RepositoryContext>(opt =>
             opt.UseSqlServer(configuration.GetConnectionString("sqlConnection")));
 
+        public static void AddCustomMediaType(this IServiceCollection services)
+        {
+            services.Configure<MvcOptions>(config =>
+            {
+                var systemTextJsonOutPutFormatter = config.OutputFormatters.OfType<SystemTextJsonOutputFormatter>()?.FirstOrDefault();
 
+                if (systemTextJsonOutPutFormatter != null)
+                {
+                    systemTextJsonOutPutFormatter.SupportedMediaTypes.Add("application/vnd.silverscrn.hateoas+json");
+                }
+
+                var xmlOutputFormatter = config.OutputFormatters.OfType<XmlDataContractSerializerOutputFormatter>()?.FirstOrDefault();
+
+                if (xmlOutputFormatter != null)
+                {
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.silverscrn.hateoas+xml");
+                }
+            });
+        }
     }
 }

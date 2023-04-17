@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Contracts.Base;
 using Contracts.Logger;
+using Contracts.Movies;
 using Entities.Categories;
 using Entities.Exceptions;
+using Entities.LinkModel;
 using Entities.Movies;
 using Service.Contracts.Movies;
 using Shared.DataTransferObjects.Movies;
@@ -16,17 +18,17 @@ namespace Services.Movies
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
-        private readonly IDataShaper<MovieDto> _dataShaper;
+        private readonly IMovieLinks _movieLinks;
 
         public MovieService(IRepositoryManager repositoryManager,
             ILoggerManager loggerManager,
             IMapper autoMapper,
-            IDataShaper<MovieDto> dataShaper)
+            IMovieLinks movieLinks)
         {
             this._repository = repositoryManager;
             this._logger = loggerManager;
             this._mapper = autoMapper;
-            this._dataShaper = dataShaper;
+            this._movieLinks = movieLinks;
         }
 
         public async Task<(IEnumerable<MovieDto> movies, string ids)> CreateMovieCollectionAsync(Guid categoryId, IEnumerable<MovieForCreationDto> movieCollection)
@@ -68,17 +70,16 @@ namespace Services.Movies
             return _mapper.Map<MovieDto>(movie);
         }
 
-        public async Task<(IEnumerable<ExpandoObject> movies, MetaData metaData)> GetMoviesAsync(Guid categoryId, MovieParameters movieParameters, bool trackChanges)
+        public async Task<(LinkResponse linkResponse, MetaData metaData)> GetMoviesAsync(Guid categoryId, LinkParameters linkParameters, bool trackChanges)
         {
             await GetCategoryAndCheckIfItExists(categoryId,trackChanges);
 
-            var moviesWithMetaData = await _repository.Movie.GetMoviesAsync(categoryId, movieParameters, trackChanges);
+            var moviesWithMetaData = await _repository.Movie.GetMoviesAsync(categoryId, linkParameters.movieParameters, trackChanges);
 
             var moviesDto = _mapper.Map<IEnumerable<MovieDto>>(moviesWithMetaData);
-
-            var shapedData = _dataShaper.ShapeData(moviesDto, movieParameters.Fields);
-
-            return (movies: shapedData, metaData: moviesWithMetaData.MetaData);
+            var links = _movieLinks.TryGenerateLinks(moviesDto, linkParameters.movieParameters.Fields, categoryId, linkParameters.Context);
+             
+            return (linkResponse: links, metaData: moviesWithMetaData.MetaData);
         }
 
         public async Task<IEnumerable<MovieDto>> GetMoviesByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)

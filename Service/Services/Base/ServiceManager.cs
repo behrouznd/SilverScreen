@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts.Base;
 using Contracts.Logger;
+using Contracts.Movies;
 using Service.Contracts.Base;
 using Service.Contracts.Categories;
 using Service.Contracts.Genres;
@@ -23,12 +24,12 @@ namespace Services.Base
         public ServiceManager(IRepositoryManager repositoryManager,
             ILoggerManager loggerManager,
             IMapper mapper,
-            IDataShaper<MovieDto> dataShaper)
+            IMovieLinks movieLinks)
         {
             _categoryService = new Lazy<ICategoryService>(() => new CategoryService(repositoryManager , loggerManager, mapper));
             _genreService = new Lazy<IGenreService>(() => new GenreService(repositoryManager, loggerManager));
             _languageService = new Lazy<ILanguageService>(()=> new LanguageService(repositoryManager, loggerManager ));
-            _movieService = new Lazy<IMovieService>(() => new MovieService(repositoryManager, loggerManager, mapper, dataShaper));
+            _movieService = new Lazy<IMovieService>(() => new MovieService(repositoryManager, loggerManager, mapper, movieLinks));
         }
 
         public ICategoryService categoryService => _categoryService.Value;

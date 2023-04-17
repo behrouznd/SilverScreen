@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Entities.LinkModel;
+using Microsoft.AspNetCore.Mvc;
 using Presentation.ActionFilters;
 using Presentation.ModelBinders;
 using Service.Contracts.Base;
@@ -19,14 +20,19 @@ namespace Presentation.Controllers
             this._service = serviceManager;
          
 
-        [HttpGet]
+        [HttpGet(Name = "GetMoviesForCategory")]
+        [ServiceFilter(typeof(ValidationMediaTypeAttribute))]
         public async Task<IActionResult> GetMovies(Guid categoryId, [FromQuery] MovieParameters movieParameters)
         {
-            var moviesPagesResult = await _service.movieService.GetMoviesAsync(categoryId, movieParameters , trackChanges: false);
+            var linkParams = new LinkParameters(movieParameters, HttpContext);
 
-            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(moviesPagesResult.metaData));
+            var moviesPagedResult = await _service.movieService.GetMoviesAsync(categoryId, linkParams, trackChanges: false);
 
-            return Ok(moviesPagesResult.movies);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(moviesPagedResult.metaData));
+
+            return moviesPagedResult.linkResponse.HasLinks ?
+                Ok(moviesPagedResult.linkResponse.LinkedEntities) :
+                Ok(moviesPagedResult.linkResponse.ShapedEntities);
         }
 
         [HttpGet("{id:guid}" , Name = "GetMovieForCategory")]

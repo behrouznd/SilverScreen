@@ -1,11 +1,13 @@
 using Contracts.Base;
 using Contracts.Logger;
+using Contracts.Movies;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using Presentation.ActionFilters;
 using Services.DataShaping;
 using Shared.DataTransferObjects.Movies;
 using SilverScreen.Extensions;
+using SilverScreen.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 LogManager.LoadConfiguration(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
@@ -24,10 +26,14 @@ builder.Services.Configure<ApiBehaviorOptions>(option =>
     option.SuppressModelStateInvalidFilter = true;
 });
 builder.Services.AddScoped<ValidationFilterAttribute>();
+builder.Services.AddScoped<ValidationMediaTypeAttribute>();
 builder.Services.AddScoped<IDataShaper<MovieDto>, DataShaper<MovieDto>>();
+builder.Services.AddScoped<IMovieLinks,MovieLinks>();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+
+builder.Services.AddCustomMediaType();
 
 var app = builder.Build();
 
