@@ -29,6 +29,7 @@ builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<ValidationMediaTypeAttribute>();
 builder.Services.AddScoped<IDataShaper<MovieDto>, DataShaper<MovieDto>>();
 builder.Services.AddScoped<IMovieLinks,MovieLinks>();
+builder.Services.ConfigureVersioning();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);

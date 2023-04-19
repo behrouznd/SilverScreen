@@ -5,6 +5,7 @@ using Shared.DataTransferObjects.Categories;
 
 namespace Presentation.Controllers
 {
+    [ApiVersion("1.0")]
     [Route("api/categories")]
     [ApiController]
     public class CategoryController : ControllerBase

@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Presentation.Controllers
 {
-
+    [ApiVersion("1.0")]
     [Route("api/categories/{categoryId}/movies")]
     [ApiController]
     public class MoviesController : ControllerBase
@@ -64,7 +64,6 @@ namespace Presentation.Controllers
         public async Task<IActionResult> CreateMovieCollection(Guid id, [FromBody]IEnumerable<MovieForCreationDto> moviesCollection)
         {
             var result = await _service.movieService.CreateMovieCollectionAsync(id, moviesCollection);
-
             return CreatedAtRoute("MovieCollection", new { result.ids }, result.movies);
         }
 
@@ -79,15 +78,14 @@ namespace Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateMovieForCategory(Guid categoryId, Guid id, [FromBody] MovieForUpdateDto movie)
         {           
-             await _service.movieService.UpdateMovieForCategoryAsync(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
-
+            await _service.movieService.UpdateMovieForCategoryAsync(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
             return NoContent();
         }
 
         [HttpOptions]
         public IActionResult GetMovieOptions()
         {
-            Response.Headers.Add("Allow", "Get, Post, Delete, Head");
+            Response.Headers.Add("Allow", "Get, Post, Put, Delete, Head");
             return Ok();
         }
     }
