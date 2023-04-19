@@ -21,6 +21,7 @@ namespace Presentation.Controllers
          
 
         [HttpGet(Name = "GetMoviesForCategory")]
+        [HttpHead]
         [ServiceFilter(typeof(ValidationMediaTypeAttribute))]
         public async Task<IActionResult> GetMovies(Guid categoryId, [FromQuery] MovieParameters movieParameters)
         {
@@ -81,6 +82,13 @@ namespace Presentation.Controllers
              await _service.movieService.UpdateMovieForCategoryAsync(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
 
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetMovieOptions()
+        {
+            Response.Headers.Add("Allow", "Get, Post, Delete, Head");
+            return Ok();
         }
     }
 }
