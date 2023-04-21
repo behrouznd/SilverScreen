@@ -69,5 +69,24 @@ namespace SilverScreen.Extensions
                 opt.ApiVersionReader = new HeaderApiVersionReader("api-version");
             });
 
+        public static void ConfigureResponseCaching(this IServiceCollection services) =>
+            services.AddResponseCaching();
+
+        public static void ConfigureHttpCacheHeader(this IServiceCollection services) =>
+            services.AddHttpCacheHeaders(
+                (exprationOpt) =>
+                {
+                    exprationOpt.MaxAge = 60;
+                    exprationOpt.CacheLocation = Marvin.Cache.Headers.CacheLocation.Private;
+                },
+                (validationOpt) =>
+                {
+                    validationOpt.MustRevalidate = true;
+                }
+
+                );
+
+
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Mvc;
 using Presentation.ActionFilters;
 using Service.Contracts.Base;
 using Shared.DataTransferObjects.Categories;
@@ -8,6 +9,7 @@ namespace Presentation.Controllers
     [ApiVersion("1.0")]
     [Route("api/categories")]
     [ApiController]
+    [ResponseCache(CacheProfileName = "300SecondsDuration")]
     public class CategoryController : ControllerBase
     {
         private readonly IServiceManager _service;
@@ -18,6 +20,8 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public , MaxAge = 600)]
+        [HttpCacheValidation(MustRevalidate = false)]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await _service.categoryService.GetAllCategoriesAsync(trackChanges: false);

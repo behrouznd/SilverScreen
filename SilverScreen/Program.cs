@@ -30,9 +30,14 @@ builder.Services.AddScoped<ValidationMediaTypeAttribute>();
 builder.Services.AddScoped<IDataShaper<MovieDto>, DataShaper<MovieDto>>();
 builder.Services.AddScoped<IMovieLinks,MovieLinks>();
 builder.Services.ConfigureVersioning();
+builder.Services.ConfigureResponseCaching();
+builder.Services.ConfigureHttpCacheHeader();
 
-builder.Services.AddControllers()
-    .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+builder.Services.AddControllers(config =>
+{
+    config.CacheProfiles.Add("300SecondsDuration", new CacheProfile { Duration = 300 });
+
+}).AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
 builder.Services.AddCustomMediaType();
 
@@ -54,8 +59,9 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All
 });
-
-
+app.UseCors("CorsPolicy");
+app.UseResponseCaching();
+app.UseHttpCacheHeaders();
 app.UseAuthorization();
 
 app.MapControllers();
