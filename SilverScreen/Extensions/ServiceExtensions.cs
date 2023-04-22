@@ -1,4 +1,5 @@
-﻿using Contracts.Base;
+﻿using AspNetCoreRateLimit;
+using Contracts.Base;
 using Contracts.Logger;
 using LoggerService;
 using Microsoft.AspNetCore.Mvc;
@@ -86,6 +87,30 @@ namespace SilverScreen.Extensions
 
                 );
 
+        public static void ConfigureRateLimitingOption(this IServiceCollection services)
+        {
+            var rateLimitRules = new List<RateLimitRule>
+            {
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Limit = 1 ,
+                    Period = "1s"
+                },
+                new RateLimitRule
+                {
+                    Endpoint = "get:/api/categories",
+                    Period = "1m",
+                    Limit = 10 
+                }
+            };
+
+            services.Configure<IpRateLimitOptions>(opt => { opt.GeneralRules = rateLimitRules; });      
+            services.AddSingleton<IRateLimitCounterStore,MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IIpPolicyStore,MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitConfiguration,RateLimitConfiguration>();
+            services.AddSingleton<IProcessingStrategy,AsyncKeyLockProcessingStrategy>();
+        }
 
 
     }

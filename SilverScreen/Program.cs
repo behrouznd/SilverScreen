@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using Contracts.Base;
 using Contracts.Logger;
 using Contracts.Movies;
@@ -32,6 +33,10 @@ builder.Services.AddScoped<IMovieLinks,MovieLinks>();
 builder.Services.ConfigureVersioning();
 builder.Services.ConfigureResponseCaching();
 builder.Services.ConfigureHttpCacheHeader();
+builder.Services.AddMemoryCache();
+builder.Services.ConfigureRateLimitingOption();
+builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddControllers(config =>
 {
@@ -59,6 +64,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All
 });
+app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
 app.UseResponseCaching();
 app.UseHttpCacheHeaders();
