@@ -1,4 +1,5 @@
 ﻿using Entities.LinkModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.ActionFilters;
 using Presentation.ModelBinders;
@@ -45,6 +46,7 @@ namespace Presentation.Controllers
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> CreateMovieForCategory(Guid id, [FromBody]MovieForCreationDto movie)
         {            
             var createdMovie = await _service.movieService.CreateMovieForCategoryAsync(id, movie, trackChanges: false);
@@ -61,6 +63,7 @@ namespace Presentation.Controllers
 
         [HttpPost("collection")]
         [ServiceFilter(typeof (ValidationFilterAttribute))]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> CreateMovieCollection(Guid id, [FromBody]IEnumerable<MovieForCreationDto> moviesCollection)
         {
             var result = await _service.movieService.CreateMovieCollectionAsync(id, moviesCollection);
@@ -68,6 +71,7 @@ namespace Presentation.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteMovieForCategory(Guid categoryId, Guid id)
         {
             await _service.movieService.DeleteMovieForCategoryAsync(categoryId, id, trackChanges: false);
@@ -76,6 +80,7 @@ namespace Presentation.Controllers
 
         [HttpPut("{id:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> UpdateMovieForCategory(Guid categoryId, Guid id, [FromBody] MovieForUpdateDto movie)
         {           
             await _service.movieService.UpdateMovieForCategoryAsync(categoryId, id, movie, catTrackChanges: false, movTrackChanges: true);
@@ -83,6 +88,7 @@ namespace Presentation.Controllers
         }
 
         [HttpOptions]
+        [Authorize(Roles = "Administrator")]
         public IActionResult GetMovieOptions()
         {
             Response.Headers.Add("Allow", "Get, Post, Put, Delete, Head");

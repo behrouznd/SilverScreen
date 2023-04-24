@@ -36,7 +36,10 @@ builder.Services.ConfigureHttpCacheHeader();
 builder.Services.AddMemoryCache();
 builder.Services.ConfigureRateLimitingOption();
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
+builder.Services.ConfigureJWT(builder.Configuration);
+builder.Services.AddJwtConfiguration(builder.Configuration);
 
 builder.Services.AddControllers(config =>
 {
@@ -68,6 +71,7 @@ app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
 app.UseResponseCaching();
 app.UseHttpCacheHeaders();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

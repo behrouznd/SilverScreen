@@ -1,4 +1,5 @@
 ﻿using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.ActionFilters;
 using Service.Contracts.Base;
@@ -38,6 +39,7 @@ namespace Presentation.Controllers
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> CreateCategory([FromBody]CategoryForCreationDto category)
         { 
             var createdCategory = await _service.categoryService.CreateCategoryAsync(category);

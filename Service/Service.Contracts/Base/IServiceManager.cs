@@ -2,6 +2,7 @@
 using Service.Contracts.Genres;
 using Service.Contracts.Languages;
 using Service.Contracts.Movies;
+using Service.Contracts.Users;
 
 namespace Service.Contracts.Base
 {
@@ -11,5 +12,7 @@ namespace Service.Contracts.Base
         IGenreService genreService { get; }
         ILanguageService languageService { get; }
         IMovieService movieService { get; }
+
+        IAuthenticationService authenticationService { get; }
     }
 }

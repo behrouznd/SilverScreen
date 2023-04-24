@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Entities.Movies
 {
-    public class Movie : BaseEntity
+    public class Movie : BaseEntity  
     {
         [Required(ErrorMessage = "Title is a required field")]
         [MaxLength(100)]
@@ -22,6 +22,7 @@ namespace Entities.Movies
         [MaxLength(255)]
         public string? BannerImage { get; set; }
 
+        public DateTime? CreatedDate { get; set; }
 
         [ForeignKey(nameof(Category))]
         public Guid CategoryId { get; set; }

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Entities.Categories;
 using Entities.Movies;
+using Entities.Users;
 using Shared.DataTransferObjects.Categories;
 using Shared.DataTransferObjects.Movies;
+using Shared.DataTransferObjects.Users;
 
 namespace SilverScreen
 {
@@ -16,6 +18,9 @@ namespace SilverScreen
             CreateMap<Movie, MovieDto>();
             CreateMap<MovieForCreationDto, Movie>();
             CreateMap<MovieForUpdateDto, Movie>();
+
+            CreateMap<UserForRegisterationDto, User>();
+
         }
     }
 }
